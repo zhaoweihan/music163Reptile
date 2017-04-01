@@ -39,7 +39,7 @@ app.get('/recommendLst', function (req, res) {
                     console.log(cvrLink.html());
                     // 获得 cover 歌单封面
                     var cover = $(element).find('.u-cover').find('img').attr('src');
-                    var num=$(element).find('.u-cover').find('span.nb').text();
+                    var num = $(element).find('.u-cover').find('span.nb').text();
                     // 组织单个推荐歌单对象结构
                     var recommendItem = {
                         id: cvrLink.attr('data-res-id'),
@@ -47,7 +47,7 @@ app.get('/recommendLst', function (req, res) {
                         href: 'http://music.163.com' + cvrLink.attr('href'),
                         type: cvrLink.attr('data-res-type'),
                         cover: cover,
-                        num:num
+                        num: num
                     };
                     // 将单个对象放在数组中
                     recommendLst.push(recommendItem);
@@ -68,6 +68,75 @@ app.get('/recommendLst', function (req, res) {
 
 });
 
+
+// 定义根据歌单id获得歌单详细信息的API
+app.get('/playlist/:playlistId', function (req, res) {
+
+    var playlistId = req.params.playlistId;
+    // 定义返回对象
+    var resObj = {
+        code: 200,
+        data: {}
+    };
+
+    /**
+     * 使用 superagent 请求
+     * 在这里我们为什么要请求 http://music.163.com/playlist?id=${playlistId}
+     * 简友们应该还记得 网易云音乐首页的 iframe
+     * 应该还记得去打开 调试面板的 Sources 选项卡
+     * 那么就可以看到在歌单页面 iframe 到底加载了什么 url
+     */
+    request.get(`http://music.163.com/playlist?id=${playlistId}`)
+        .end(function (err, _response) {
+
+            if (!err) {
+                // 定义歌单对象
+                var playlist = {
+                    id: playlistId
+                };
+
+                // 成功返回 HTML, decodeEntities 指定不把中文字符转为 unicode 字符
+                // 如果不指定 decodeEntities 为 false , 例如 " 会解析为 "
+                var $ = cheerio.load(_response.text, {
+                    decodeEntities: false
+                });
+                // 获得歌单 dom
+                var dom = $('#m-playlist');
+                // 歌单标题
+                playlist.title = dom.find('.tit').text();
+                // 歌单拥有者
+                playlist.owner = dom.find('.user').find('.name').text();
+                // 创建时间
+                playlist.create_time = dom.find('.user').find('.time').text();
+                // 歌单被收藏数量
+                playlist.collection_count = dom.find('#content-operation').find('.u-btni-fav').attr('data-count');
+                // 分享数量
+                playlist.share_count = dom.find('#content-operation').find('.u-btni-share').attr('data-count');
+                // 评论数量
+                playlist.comment_count = dom.find('#content-operation').find('#cnt_comment_count').html();
+                // 标签
+                playlist.tags = [];
+                dom.find('.tags').eq(0).find('.u-tag').each(function (index, element) {
+                    playlist.tags.push($(element).text());
+                });
+                // 歌单描述
+                playlist.desc = dom.find('#album-desc-more').html();
+                // 歌曲总数量
+                playlist.song_count = dom.find('#playlist-track-count').text();
+                // 播放总数量
+                playlist.play_count = dom.find('#play-count').text();
+
+                resObj.data = playlist;
+
+            } else {
+                resObj.code = 404;
+                console.log('Get data error!');
+            }
+
+            res.send(resObj);
+
+        });
+});
 
 /**
  * 开启express服务,监听本机3000端口
