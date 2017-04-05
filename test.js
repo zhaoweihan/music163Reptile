@@ -33,5 +33,5 @@ app.get('/', function(req, res){
 
 // 监听3000 端口
 app.listen(3000, function(){
-    console.log('Server start!');
+    console.log('Server start!!');
 });
