@@ -1,5 +1,5 @@
 // 初始化 express
-var app = require('express')();
+var app = require('express');
 // 初始化 superagent 模块
 var request = require('superagent');
 // 加载 cheerio 模块
