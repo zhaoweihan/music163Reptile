@@ -138,6 +138,41 @@ app.get('/playlist/:playlistId', function (req, res) {
         });
 });
 
+// 定义根据歌单id获得歌单所有歌曲列表的API
+app.get('/song_list/:playlistId', function(req, res){
+
+    // 获得歌单ID
+    var playlistId = req.params.playlistId;
+    // 定义返回对象
+    var resObj = {
+        code: 200,
+        data: []
+    };
+
+    request.get(`http://music.163.com/playlist?id=${playlistId}`)
+        .end(function(err, _response){
+
+            if (!err) {
+
+                // 成功返回 HTML
+                var $ = cheerio.load(_response.text,{decodeEntities: false});
+                // 获得歌单 dom
+                var dom = $('#m-playlist');
+
+                resObj.data = JSON.parse( dom.find('#song-list-pre-cache').find('textarea').html() );
+
+            } else {
+                resObj.code = 404 ;
+                console.log('Get data error!');
+            }
+
+            res.send( resObj );
+
+        });
+
+
+});
+
 /**
  * 开启express服务,监听本机3000端口
  * 第二个参数是开启成功后的回调函数
