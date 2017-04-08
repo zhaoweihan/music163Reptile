@@ -1,7 +1,7 @@
 {
-  "name": "mucis163",
+  "name": "mucis163reptile",
   "version": "1.0.0",
-  "description": "",
+  "description": "网易云音乐爬虫",
   "main": "test.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
