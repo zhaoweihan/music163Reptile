@@ -1,9 +1,18 @@
-// 初始化 express
+// 初始化 expressn
 var app = require('express')();
 // 初始化 superagent 模块
 var request = require('superagent');
 // 加载 cheerio 模块
 var cheerio = require('cheerio');
+//增加请求头 实现跨域访问
+app.all('*', function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    next();
+});
+
 /**
  * 开启路由
  * 第一个参数指定路由地址,当前指向的是 localhost:3000/
@@ -139,7 +148,7 @@ app.get('/playlist/:playlistId', function (req, res) {
 });
 
 // 定义根据歌单id获得歌单所有歌曲列表的API
-app.get('/song_list/:playlistId', function(req, res){
+app.get('/song_list/:playlistId', function (req, res) {
 
     // 获得歌单ID
     var playlistId = req.params.playlistId;
@@ -150,23 +159,23 @@ app.get('/song_list/:playlistId', function(req, res){
     };
 
     request.get(`http://music.163.com/playlist?id=${playlistId}`)
-        .end(function(err, _response){
+        .end(function (err, _response) {
 
             if (!err) {
 
                 // 成功返回 HTML
-                var $ = cheerio.load(_response.text,{decodeEntities: false});
+                var $ = cheerio.load(_response.text, { decodeEntities: false });
                 // 获得歌单 dom
                 var dom = $('#m-playlist');
 
-                resObj.data = JSON.parse( dom.find('#song-list-pre-cache').find('textarea').html() );
+                resObj.data = JSON.parse(dom.find('#song-list-pre-cache').find('textarea').html());
 
             } else {
-                resObj.code = 404 ;
+                resObj.code = 404;
                 console.log('Get data error!');
             }
 
-            res.send( resObj );
+            res.send(resObj);
 
         });
 
