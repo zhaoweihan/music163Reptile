@@ -17,9 +17,57 @@ app.all('*', function (req, res, next) {
  * 开启路由
  * 第一个参数指定路由地址,当前指向的是 localhost:3000/
  * 如果需要其他路由,可以这样定义,比如 需要我们的获取推荐歌单的路由 /recommendLst
- * app.get('/recommendLst', function(req, res){});
+ * app.get('/recommendList', function(req, res){});
  */
-app.get('/recommendLst', function (req, res) {
+// 获得网易云音乐主页banner
+app.get('/banner_list', function (req, res) {
+
+    var requestUrl = 'http://music.163.com/discover';
+    // 定义返回对象
+    var resObj = {
+        code: 200,
+        message: "加载成功",
+        data: {}
+    };
+
+    request.get(requestUrl)
+        .end(function (err, _response) {
+
+            if (!err) {
+
+                // 成功返回 HTML
+                var $ = cheerio.load(_response.text, {
+                    decodeEntities: false
+                });
+                // 获得歌单 dom
+                var bannerScript = $('script').eq(2);
+                var bannerString = bannerScript.html().replace(/(^\s+)|(\s+$)/g, "").replace(/[\r\n]/g, "");
+                bannerString = bannerString.substr(bannerString.indexOf("["), bannerString.length - 2);
+                bannerString = eval(bannerString);
+
+                for (var i = 0; i < bannerString.length; i++) {
+                    if (bannerString[i].url.indexOf("http") != 0) {
+                        bannerString[i].url = "http://music.163.com" + bannerString[i].url;
+                    }
+                }
+
+                resObj.data = bannerString;
+
+            } else {
+                resObj.code = 404;
+                resObj.message = "获取API出现问题";
+                console.error('Get data error!');
+            }
+
+            res.send(resObj);
+
+        });
+
+});
+
+
+//获取 推荐歌单列表
+app.get('/recommendList', function (req, res) {
     // 初始化返回对象
     var resObj = {
         code: 200,
@@ -29,10 +77,7 @@ app.get('/recommendLst', function (req, res) {
     // 使用 superagent 访问 discover 页面
     request.get('http://music.163.com/discover')
         .end(function (err, _response) {
-
             if (!err) {
-
-
                 // 请求成功
                 var dom = _response.text;
 
@@ -164,7 +209,9 @@ app.get('/song_list/:playlistId', function (req, res) {
             if (!err) {
 
                 // 成功返回 HTML
-                var $ = cheerio.load(_response.text, { decodeEntities: false });
+                var $ = cheerio.load(_response.text, {
+                    decodeEntities: false
+                });
                 // 获得歌单 dom
                 var dom = $('#m-playlist');
 
@@ -181,7 +228,154 @@ app.get('/song_list/:playlistId', function (req, res) {
 
 
 });
+//获取最新音乐列表
+app.get('/latestMusicList', function (req, res) {
+    // 初始化返回对象
+    var resObj = {
+        code: 200,
+        data: []
+    };
+    request.get('http://music.163.com/discover')
+        .end(function (err, _response) {
+            if (!err) {
+                var dom = _response.text;
+                var $ = cheerio.load(dom);
+                var latestMusicList = [];
+                $("#album-roller ul").eq(0).find("li").each(function (index, element) {
+                    latestMusicList.push({
+                        picUrl: $(element).find('img').attr('data-src').replace("?param=100y100", ""),
+                        albumName: $(element).find("a.tit").attr("title"),
+                        albumUrl: "http://music.163.com" + $(element).find("a.tit").attr("href"),
+                        singerName: $(element).find("p.tit.f-thide").attr("title"),
+                        singerUrl: "http://music.163.com" + $(element).find("p.f-thide a").attr("href"),
+                    })
+                });
+                var lastli = $("#album-roller ul").eq(1).find("li").eq(0);
+                latestMusicList.push({
+                    picUrl: lastli.find('img').attr('data-src').replace("?param=100y100", ""),
+                    albumName: lastli.find("a.tit").attr("title"),
+                    albumUrl: "http://music.163.com" + lastli.find("a.tit").attr("href"),
+                    singerName: lastli.find("p.tit.f-thide").attr("title"),
+                    singerUrl: "http://music.163.com" + lastli.find("p.f-thide a").attr("href"),
+                });
+                resObj.data = latestMusicList;
+            } else {
+                resObj.code = 404;
+                console.log('Get data error!');
+            }
 
+            res.send(resObj);
+        });
+});
+// 获取网易云音乐排行榜
+app.get('/top_list', function (req, res) {
+
+    var requestUrl = 'http://music.163.com/discover/toplist';
+    // 定义返回对象
+    var resObj = {
+        code: 200,
+        message: "加载成功",
+        data: {}
+    };
+
+    request.get(requestUrl)
+        .end(function (err, _response) {
+
+            if (!err) {
+
+                // 成功返回 HTML
+                var $ = cheerio.load(_response.text, {
+                    decodeEntities: false
+                });
+                // 定义返回对象
+                var topList = [];
+
+                var topListDom = $('#toplist').find('.n-minelst');
+
+                // 分析云音乐特色榜
+                var topListItem0 = {
+                    title: topListDom.find('h2').eq(0).text(),
+                    items: []
+                };
+                var topListItem0Ul = topListDom.find('ul').eq(0).find('li');
+                topListItem0Ul.each(function (index, element) {
+                    var item = {
+                        cover: $(element).find('img').attr('src'),
+                        name: $(element).find('.name').text(),
+                        href: 'http://music.163.com' + $(element).find('.avatar').attr('href'),
+                        update_time: $(element).find('.s-fc4').text()
+                    };
+                    topListItem0.items.push(item);
+                });
+
+                // 分析云音乐全球媒体榜
+                var topListItem1 = {
+                    title: topListDom.find('h2').eq(1).text(),
+                    items: []
+                };
+                var topListItem1Ul = topListDom.find('ul').eq(1).find('li');
+                topListItem1Ul.each(function (index, element) {
+                    var item = {
+                        cover: $(element).find('img').attr('src'),
+                        name: $(element).find('.name').text(),
+                        href: 'http://music.163.com' + $(element).find('.avatar').attr('href'),
+                        update_time: $(element).find('.s-fc4').text()
+                    };
+                    topListItem1.items.push(item);
+                });
+
+                topList.push(topListItem0);
+                topList.push(topListItem1);
+                // 获得歌单 dom
+                resObj.data = topList;
+
+            } else {
+                resObj.code = 404;
+                resObj.message = "获取API出现问题";
+                console.error('Get data error!');
+            }
+
+            res.send(resObj);
+
+        });
+
+});
+//根据排行榜id 获取 歌曲列表
+// 获取网易云音乐排行榜
+app.get('/topSongList/:topid', function (req, res) {
+    var requestUrl = 'http://music.163.com/discover/toplist?id='+req.params.topid;
+    // 定义返回对象
+    var resObj = {
+        code: 200,
+        message: "加载成功",
+        data: []
+    };
+
+    request.get(requestUrl)
+        .end(function (err, _response) {
+
+            if (!err) {
+
+                // 成功返回 HTML
+                var $ = cheerio.load(_response.text, {
+                    decodeEntities: false
+                });
+                // 定义返回对象
+                var topsonglist = [];
+                topsonglist = JSON.parse($("#song-list-pre-cache textarea").text());
+                resObj.data = topsonglist.splice(0, 3);
+
+            } else {
+                resObj.code = 404;
+                resObj.message = "获取API出现问题";
+                console.error('Get data error!');
+            }
+
+            res.send(resObj);
+
+        });
+
+});
 /**
  * 开启express服务,监听本机3000端口
  * 第二个参数是开启成功后的回调函数
