@@ -376,6 +376,55 @@ app.get('/topSongList/:topid', function (req, res) {
         });
 
 });
+/*
+获取全部歌单列表
+*/
+app.get('/allsonglist', function (req, res) {
+    var requestUrl = 'http://music.163.com/discover/playlist';
+    // 定义返回对象
+    var resObj = {
+        code: 200,
+        message: "加载成功",
+        data: []
+    };
+
+    request.get(requestUrl)
+        .end(function (err, _response) {
+
+            if (!err) {
+
+                // 成功返回 HTML
+                var $ = cheerio.load(_response.text, {
+                    decodeEntities: false
+                });
+                // 定义返回对象
+                var allsonglist = [];
+                allsonglistText =$("#m-pl-container").find("li");
+                allsonglistText.each(function(index,item){
+                    var $item=$(item);
+                    allsonglist.push({
+                        id:$item.find('.bottom a').attr('data-res-id'),
+                        type:$item.find('.bottom a').attr('data-res-type'),
+                        picUrl:$item.find("img").attr('src').split('?param=')[0],
+                        listName:$item.find("p.dec a").attr("title"),
+                        listenNum:$item.find('.bottom .nb').text(),
+                        auther:$item.find('a.f-thide.s-fc3').attr('title'),
+                        isStar:$item.find('a.f-thide.s-fc3').next().length
+                    })
+                })
+                resObj.data=allsonglist;
+
+            } else {
+                resObj.code = 404;
+                resObj.message = "获取API出现问题";
+                console.error('Get data error!');
+            }
+
+            res.send(resObj);
+
+        });
+
+});
 /**
  * 开启express服务,监听本机3000端口
  * 第二个参数是开启成功后的回调函数
