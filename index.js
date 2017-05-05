@@ -158,8 +158,12 @@ app.get('/playlist/:playlistId', function (req, res) {
                 var dom = $('#m-playlist');
                 // 歌单标题
                 playlist.title = dom.find('.tit').text();
+                //歌单封面
+                playlist.cover = dom.find(".cover img").attr("data-src");
                 // 歌单拥有者
                 playlist.owner = dom.find('.user').find('.name').text();
+                //歌单拥有者头像
+                playlist.ownerPic = dom.find('.user img').attr('src');
                 // 创建时间
                 playlist.create_time = dom.find('.user').find('.time').text();
                 // 歌单被收藏数量
