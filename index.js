@@ -4,6 +4,10 @@ var app = require('express')();
 var request = require('superagent');
 // 加载 cheerio 模块
 var cheerio = require('cheerio');
+
+function checkId(id){
+    return /^[0-9]+$/.test(id);
+}
 //增加请求头 实现跨域访问
 app.all('*', function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -89,8 +93,7 @@ app.get('/recommendList', function (req, res) {
                 $('.m-cvrlst').eq(0).find('li').each(function (index, element) {
 
                     // 获得 a 链接
-                    var cvrLink = $(element).find('.u-cover').find('a');
-                    console.log(cvrLink.html());
+                    var cvrLink = $(element).find('.dec').find('a');
                     // 获得 cover 歌单封面
                     var cover = $(element).find('.u-cover').find('img').attr('src');
                     var num = $(element).find('.u-cover').find('span.nb').text();
@@ -429,6 +432,93 @@ app.get('/allsonglist', function (req, res) {
         });
 
 });
+// 根据歌曲 ID 获取歌曲详细信息
+app.get('/song/:songId', function(req, res){
+
+    // 获得歌曲ID
+    var songId = req.params.songId;
+    // 定义请求 url
+    var requestUrl = 'http://music.163.com/api/song/detail/?id=' + songId + '&ids=[' + songId + ']';
+    // 定义返回对象
+    var resObj = {
+        code: 200,
+        message: "加载成功",
+        data: {}
+    };
+
+    if (checkId(songId)) {
+        request.get(requestUrl)
+            .end(function(err, _response){
+
+                if (!err) {
+
+                    // 返回所有内容
+                    resObj.data = JSON.parse(_response.text).songs;
+
+                } else {
+                    resObj.code = 404 ;
+                    resObj.message = "获取API出现问题";
+                    console.error('Get data error!');
+                }
+
+                res.send( resObj );
+
+            });
+    } else {
+        resObj.code = 404 ;
+        resObj.message = "参数异常";
+        res.send( resObj );
+    }
+
+});
+// 根据歌曲ID获得歌曲歌词
+
+app.get('/lrc/:songId', function(req, res){
+
+    // 获得歌曲ID
+    var songId = req.params.songId;
+    // 定义请求 url
+    var requestUrl = 'http://music.163.com/api/song/lyric?os=pc&id=' + songId + '&lv=-1&kv=-1&tv=-1';
+    // 定义返回对象
+    var resObj = {
+        code: 200,
+        message: "加载成功",
+        data: {}
+    };
+
+    if (checkId(songId)) {
+        request.get(requestUrl)
+            .end(function(err, _response){
+
+                if (!err) {
+
+                    // 返回所有内容
+                    var wyres = JSON.parse(_response.text);
+                    if (wyres.code === 200) {
+                        delete wyres.code;
+                        resObj.data = wyres;
+                    } else {
+                        resObj.code = wyres.code;
+                        resObj.message = "获取API出现问题";
+                    }
+
+                } else {
+                    resObj.code = 404 ;
+                    resObj.message = "获取API出现问题";
+                    console.error('Get data error!');
+                }
+
+                res.send( resObj );
+
+            });
+    } else {
+        resObj.code = 404 ;
+        resObj.message = "参数异常";
+        res.send( resObj );
+    }
+
+});
+
 /**
  * 开启express服务,监听本机3000端口
  * 第二个参数是开启成功后的回调函数
