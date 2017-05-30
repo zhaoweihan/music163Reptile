@@ -1,9 +1,10 @@
 // 初始化 expressn
-var app = require('express')();
+const app = require('express')();
 // 初始化 superagent 模块
-var request = require('superagent');
+const request = require('superagent');
 // 加载 cheerio 模块
-var cheerio = require('cheerio');
+const cheerio = require('cheerio');
+
 
 function checkId(id){
     return /^[0-9]+$/.test(id);
