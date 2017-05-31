@@ -4,6 +4,10 @@ const app = require('express')();
 const request = require('superagent');
 // 加载 cheerio 模块
 const cheerio = require('cheerio');
+<<<<<<< HEAD
+=======
+
+>>>>>>> ae0df76e88442784a49f2e0ec88c6f424c8f9b23
 
 function checkId(id) {
     return /^[0-9]+$/.test(id);
