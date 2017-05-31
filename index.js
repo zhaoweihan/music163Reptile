@@ -527,5 +527,5 @@ var server = app.listen(3000, function () {
     // 如果 express 开启成功,则会执行这个方法
     var port = server.address().port;
 
-    console.log(`Express app listening at http://${hostname}:${port}`);
+    console.log(`Express app listening at http://localhost:${port}`);
 });
