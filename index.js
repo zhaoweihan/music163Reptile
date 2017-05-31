@@ -1,11 +1,11 @@
 // 初始化 expressn
-var app = require('express')();
+const app = require('express')();
 // 初始化 superagent 模块
-var request = require('superagent');
+const request = require('superagent');
 // 加载 cheerio 模块
-var cheerio = require('cheerio');
+const cheerio = require('cheerio');
 
-function checkId(id){
+function checkId(id) {
     return /^[0-9]+$/.test(id);
 }
 //增加请求头 实现跨域访问
@@ -350,7 +350,7 @@ app.get('/top_list', function (req, res) {
 //根据排行榜id 获取 歌曲列表
 // 获取网易云音乐排行榜
 app.get('/topSongList/:topid', function (req, res) {
-    var requestUrl = 'http://music.163.com/discover/toplist?id='+req.params.topid;
+    var requestUrl = 'http://music.163.com/discover/toplist?id=' + req.params.topid;
     // 定义返回对象
     var resObj = {
         code: 200,
@@ -406,20 +406,20 @@ app.get('/allsonglist', function (req, res) {
                 });
                 // 定义返回对象
                 var allsonglist = [];
-                allsonglistText =$("#m-pl-container").find("li");
-                allsonglistText.each(function(index,item){
-                    var $item=$(item);
+                allsonglistText = $("#m-pl-container").find("li");
+                allsonglistText.each(function (index, item) {
+                    var $item = $(item);
                     allsonglist.push({
-                        id:$item.find('.bottom a').attr('data-res-id'),
-                        type:$item.find('.bottom a').attr('data-res-type'),
-                        picUrl:$item.find("img").attr('src').split('?param=')[0],
-                        listName:$item.find("p.dec a").attr("title"),
-                        listenNum:$item.find('.bottom .nb').text(),
-                        auther:$item.find('a.f-thide.s-fc3').attr('title'),
-                        isStar:$item.find('a.f-thide.s-fc3').next().length
+                        id: $item.find('.bottom a').attr('data-res-id'),
+                        type: $item.find('.bottom a').attr('data-res-type'),
+                        picUrl: $item.find("img").attr('src').split('?param=')[0],
+                        listName: $item.find("p.dec a").attr("title"),
+                        listenNum: $item.find('.bottom .nb').text(),
+                        auther: $item.find('a.f-thide.s-fc3').attr('title'),
+                        isStar: $item.find('a.f-thide.s-fc3').next().length
                     })
                 })
-                resObj.data=allsonglist;
+                resObj.data = allsonglist;
 
             } else {
                 resObj.code = 404;
@@ -433,7 +433,7 @@ app.get('/allsonglist', function (req, res) {
 
 });
 // 根据歌曲 ID 获取歌曲详细信息
-app.get('/song/:songId', function(req, res){
+app.get('/song/:songId', function (req, res) {
 
     // 获得歌曲ID
     var songId = req.params.songId;
@@ -448,7 +448,7 @@ app.get('/song/:songId', function(req, res){
 
     if (checkId(songId)) {
         request.get(requestUrl)
-            .end(function(err, _response){
+            .end(function (err, _response) {
 
                 if (!err) {
 
@@ -456,24 +456,24 @@ app.get('/song/:songId', function(req, res){
                     resObj.data = JSON.parse(_response.text).songs;
 
                 } else {
-                    resObj.code = 404 ;
+                    resObj.code = 404;
                     resObj.message = "获取API出现问题";
                     console.error('Get data error!');
                 }
 
-                res.send( resObj );
+                res.send(resObj);
 
             });
     } else {
-        resObj.code = 404 ;
+        resObj.code = 404;
         resObj.message = "参数异常";
-        res.send( resObj );
+        res.send(resObj);
     }
 
 });
 // 根据歌曲ID获得歌曲歌词
 
-app.get('/lrc/:songId', function(req, res){
+app.get('/lrc/:songId', function (req, res) {
 
     // 获得歌曲ID
     var songId = req.params.songId;
@@ -488,7 +488,7 @@ app.get('/lrc/:songId', function(req, res){
 
     if (checkId(songId)) {
         request.get(requestUrl)
-            .end(function(err, _response){
+            .end(function (err, _response) {
 
                 if (!err) {
 
@@ -503,18 +503,18 @@ app.get('/lrc/:songId', function(req, res){
                     }
 
                 } else {
-                    resObj.code = 404 ;
+                    resObj.code = 404;
                     resObj.message = "获取API出现问题";
                     console.error('Get data error!');
                 }
 
-                res.send( resObj );
+                res.send(resObj);
 
             });
     } else {
-        resObj.code = 404 ;
+        resObj.code = 404;
         resObj.message = "参数异常";
-        res.send( resObj );
+        res.send(resObj);
     }
 
 });
@@ -527,5 +527,5 @@ var server = app.listen(3000, function () {
     // 如果 express 开启成功,则会执行这个方法
     var port = server.address().port;
 
-    console.log(`Express app listening at http://localhost:${port}`);
+    console.log(`Express app listening at http://${hostname}:${port}`);
 });
