@@ -8,7 +8,11 @@ app.all('*', function (req, res, next) {
     res.header('Access-Control-Allow-Credentials', 'true');
     next();
 });
-
+// 错误处理
+app.use(function(err, req, res, next) {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
 app.get('/', (req, res) => {
     res.send("hello world!");
 })
@@ -32,7 +36,7 @@ app.post('/tableList', (req, res) => {
     res.send(resObj);
 })
 var server = app.listen(3001, function () {
-    // 如果 express 开启成功,则会执行这个方法
+    var host = server.address().address;
     var port = server.address().port;
-    console.log(`Express app listening at http://localhost:${port}`);
+    console.log('Express app listening at http://%s:%s', host, port);
 });

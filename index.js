@@ -518,7 +518,6 @@ app.get('/lrc/:songId', function (req, res) {
     }
 
 });
-
 /**
  * 开启express服务,监听本机3000端口
  * 第二个参数是开启成功后的回调函数
