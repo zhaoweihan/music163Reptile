@@ -17,20 +17,41 @@ module.exports = {
                 // 使用连接
                 connection.query(sql, function (err, rows) {
                     if (err) {
-                        // console.log("err");
+                        console.log("err");
                         reject(err);
                     } else {
-                        // console.log("yes");
+                        console.log("yes");
                         if (rows.length > 0) {
                             resolve({
                                 status: 99,
-                                data:rows
+                                data: rows
                             });
                         } else {
                             resolve({
                                 status: 0
                             });
                         }
+                    }
+
+                    connection.release();
+                    //连接不再使用，返回到连接池
+                });
+            });
+        })
+        return promise;
+    },
+    update: function (sql) {
+        var promise = new Promise(function (resolve, reject) {
+            pool.getConnection(function (err, connection) {
+                // 使用连接
+                connection.query(sql, function (err, rows) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve({
+                            status: 99,
+                            data: rows
+                        });
                     }
 
                     connection.release();
