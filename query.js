@@ -20,7 +20,6 @@ module.exports = {
                         console.log("err");
                         reject(err);
                     } else {
-                        console.log("yes");
                         if (rows.length > 0) {
                             resolve({
                                 status: 99,

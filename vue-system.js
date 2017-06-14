@@ -134,19 +134,67 @@ app.post('/updateCheckinAssessItem', (req, res) => {
     }
 
 })
-// 获取入住评估列表
+/**
+ * 获取入住评估列表
+ * @param currentPage:当前页，pageSize:每页条数,filterName:姓名筛选，filterNum:身份证号筛选
+ */
 app.post('/checkinAssessList', (req, res) => {
     var resObj = {
         code: 200,
         msg: "ok",
         data: {}
     }
-    query.select('SELECT * FROM CheckinAssess WHERE isDelete!=1').then((data) => {
-        console.log(data)
-    })
-    res.send(resObj);
-})
+    query.select('SELECT id,name,gender,age,idNumber,reservationTime,contactPerson,contactMobile FROM CheckinAssess WHERE isDelete!=1').then((rows) => {
+        if (rows.status > 50) {
+            resObj.data.list = [];
+            resObj.data.totalCount = rows.data.length;
+            let arr = [];
+            rows.data.forEach((ele, index) => {
+                if (req.body.filterName) {
+                    if (ele.name.indexOf(req.body.filterName) == -1) {
+                        return false;
+                    }
+                }
+                if (req.body.filterNum) {
+                    if (ele.idNumber.indexOf(req.body.filterNum) == -1) {
+                        return false;
+                    }
+                }
+                arr.push(ele);
+            })
+            arr.forEach((ele, index) => {
+                if ((req.body.currentPage - 1) * req.body.pageSize <= index && index < req.body.currentPage * req.body.pageSize) {
+                    resObj.data.list.push(ele);
+                }
+            })
 
+
+        } else {
+            resObj.code = 5000;
+            resObj.msg = 'error'
+        }
+        res.send(resObj);
+    })
+
+})
+/**
+ * 删除入住评估单条数据
+ * @param id:数据id 
+ */
+app.post('/deleteCheckAssessItem', (req, res) => {
+    var resObj = {
+        code: 200,
+        msg: "ok",
+        data: {}
+    }
+    query.update("UPDATE CheckinAssess SET isDelete = 1 WHERE id = " + req.body.id).then((rows) => {
+        if (rows.status < 50) {
+            resObj.code = 5000;
+            resObj.msg = 'error'
+        }
+        res.send(resObj)
+    })
+})
 
 
 var server = app.listen(3001, function () {
