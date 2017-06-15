@@ -73,6 +73,29 @@ app.post('/login', (req, res) => {
         res.send(resObj);
     });
 })
+/**
+ * 获取用户个人信息接口
+ * @param id:用户id
+ */
+app.post('/getUserInfo', (req, res) => {
+    var resObj = {
+        code: 200,
+        msg: "ok",
+        data: {}
+    }
+    query.select('SELECT age,gender,nickname,realname,headPic,idNumber,roleId FROM user WHERE isDelete!=1 AND id='+req.body.id).then((rows)=>{
+        if(rows.status>50){
+            resObj.data=rows.data[0];
+        }else{
+            resObj.code = 5000;
+            resObj.msg = 'error'
+        }
+        res.send(resObj);
+    })
+})
+
+
+
 /*
  *获取单条入住评估记录
  * @param id:记录id
