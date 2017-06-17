@@ -31,7 +31,10 @@ app.get('/', (req, res) => {
 
 })
 
-// 登录
+/**
+ * 登录
+ * @param account:账号 password：密码
+ */
 app.post('/login', (req, res) => {
     var resObj = {
         code: 200,
@@ -83,17 +86,37 @@ app.post('/getUserInfo', (req, res) => {
         msg: "ok",
         data: {}
     }
-    query.select('SELECT age,gender,nickname,realname,headPic,idNumber,roleId FROM user WHERE isDelete!=1 AND id='+req.body.id).then((rows)=>{
-        if(rows.status>50){
-            resObj.data=rows.data[0];
-        }else{
+    query.select('SELECT age,gender,nickname,realname,headPic,idNumber,roleId FROM user WHERE isDelete!=1 AND id=' + req.body.id).then((rows) => {
+        if (rows.status > 50) {
+            resObj.data = rows.data[0];
+        } else {
             resObj.code = 5000;
             resObj.msg = 'error'
         }
         res.send(resObj);
     })
 })
+/**
+ * 更新个人信息
+ * @param id：用户id ,userinfo:个人信息对象
+ */
+app.post('/updateUserInfo', (req, res) => {
+    var resObj = {
+        code: 200,
+        msg: "ok",
+        data: {}
+    }
+    var ui=req.body.userinfo;
+    var sql="UPDATE  `user` SET nickname='"+ui.nickname+"',gender='"+ui.gender+"',realname='"+ui.realname+"',headPic='"+ui.headPic+"' WHERE  id= "+req.body.id
+    query.update(sql).then((data) => {
+        if (data.status < 50) {
+            resObj.code = 5000;
+            resObj.msg = 'error'
+        }
+        res.send(resObj)
 
+    });
+})
 
 
 /*
