@@ -30,6 +30,45 @@ app.get('/', (req, res) => {
     res.send('ok');
 
 })
+/**
+ * 注册 
+ * @param account:账号 password：密码 vCode：验证码
+ */
+app.post('/register', (req, res) => {
+    var resObj = {
+        code: 200,
+        msg: "ok",
+        data: {}
+    }
+    var isnext = null;
+
+
+    query.select("SELECT account FROM `user` WHERE isDelete =0").then((data) => {
+        if (data.status < 50) {
+            resObj.code = 5000;
+            resObj.msg = 'error'
+        }
+        isnext = data.data.some((ele) => {
+            return req.body.account == ele.account;
+        })
+        if (isnext) {
+            resObj.code = 6003;
+            resObj.msg = "此账号已注册过，请换其他账号"
+            res.send(resObj)
+        } else {
+            let sql = "INSERT INTO `user` (ACCOUNT,PASSWORD,ROLEID,CREATETIME,isDelete) VALUES ('" + req.body.account + "','" + req.body.password + "',0," + Date.now() + ",0)"
+            query.update(sql).then((data) => {
+                if (data.status < 50) {
+                    resObj.code = 5000;
+                    resObj.msg = 'error'
+                }
+                res.send(resObj)
+            });
+        }
+    });
+
+
+})
 
 /**
  * 登录
@@ -106,8 +145,8 @@ app.post('/updateUserInfo', (req, res) => {
         msg: "ok",
         data: {}
     }
-    var ui=req.body.userinfo;
-    var sql="UPDATE  `user` SET nickname='"+ui.nickname+"',gender='"+ui.gender+"',realname='"+ui.realname+"',headPic='"+ui.headPic+"' WHERE  id= "+req.body.id
+    var ui = req.body.userinfo;
+    var sql = "UPDATE  `user` SET nickname='" + ui.nickname + "',gender='" + ui.gender + "',realname='" + ui.realname + "',headPic='" + ui.headPic + "' WHERE  id= " + req.body.id
     query.update(sql).then((data) => {
         if (data.status < 50) {
             resObj.code = 5000;
