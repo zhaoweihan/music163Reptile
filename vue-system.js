@@ -280,7 +280,47 @@ app.post('/deleteCheckAssessItem', (req, res) => {
         res.send(resObj)
     })
 })
+/**
+ * 获取购物车商品列表
+ */
+app.post('/shoppingCartGoodsList', (req, res) => {
+    var resObj = {
+        code: 200,
+        msg: "ok",
+        data: {
+            goodsList: [{
+                id: 1,
+                goodsName: "黑凤梨 20寸PC膜拉链登机箱",
+                imgUrl: "http://yanxuan.nosdn.127.net/541c41e152ba5ce4772dc0977a48412b.png?quality=90&thumbnail=200x200&imageView",
+                type: "钢琴白",
+                price: 22800,
+                num: 2,
+                isChecked: false,
+                active: ""
+            }, {
+                id: 2,
+                goodsName: "日式和风声波式电动牙刷",
+                imgUrl: "http://yanxuan.nosdn.127.net/9e3ef5c57fdffd8500aeb9f7c1c73710.png?quality=90&thumbnail=200x200&imageView",
+                type: "静雅黑机身+一个刷头",
+                price: 12900,
+                num: 1,
+                isChecked: true,
+                active: ""
+            }, {
+                id: 3,
+                goodsName: "2件装 海洋水彩汤盘 20.3cm",
+                imgUrl: "http://yanxuan.nosdn.127.net/0c6f4a642b37afb41d4e00d7c1b08abc.png?quality=90&thumbnail=200x200&imageView",
+                type: "2只装",
+                price: 5948,
+                num: 5,
+                isChecked: true,
+                active: ""
+            }]
+        }
+    }
+    res.send(resObj)
 
+})
 
 var server = app.listen(3001, function () {
     var host = server.address().address;
