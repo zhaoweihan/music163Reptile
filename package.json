@@ -1,4 +1,4 @@
-npm install express-connection{
+{
   "name": "mucis163reptile",
   "version": "1.0.0",
   "description": "网易云音乐爬虫",
@@ -11,8 +11,12 @@ npm install express-connection{
   "devDependencies": {
     "body-parser": "^1.17.2",
     "cheerio": "^0.22.0",
+    "content-type": "^1.0.2",
     "express": "^4.15.2",
+    "fs": "^0.0.1-security",
     "mysql": "^2.13.0",
+    "qiniu": "^7.0.6",
+    "raw-body": "^2.3.0",
     "superagent": "^3.5.2"
   }
 }

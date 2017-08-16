@@ -3,7 +3,10 @@ const express = require('express')
 const app = express();
 const query = require('./query.js')
 const bodyParser = require('body-parser');
-var router = express.Router();
+const fs = require("fs");
+const qiniu = require("qiniu")
+
+const router = express.Router();
 // create application/json parser
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({
@@ -11,7 +14,12 @@ app.use(bodyParser.urlencoded({
 }))
 
 // parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json({
+    type: "application/json"
+}))
+app.use(bodyParser.raw({
+    type: "multipart/form-data"
+}));
 
 //增加请求头 实现跨域访问
 app.all('*', function (req, res, next) {
@@ -321,6 +329,31 @@ app.post('/shoppingCartGoodsList', (req, res) => {
     res.send(resObj)
 
 })
+
+
+
+//获取七牛云上传凭证
+var accessKey = 'Rbfxo7gz15zUtWCUq5pBvdSfws_oLEpR2As2gbEm';
+var secretKey = '2NQSGLQNbjAu0UllGvFJ5_JFUpebREvvZCeIL5Q0';
+var mac = new qiniu.auth.digest.Mac(accessKey, secretKey);
+app.post("/getQiniuToken", (req, res) => {
+    var resObj = {
+        code: 200,
+        msg: "ok",
+        data: {}
+    }
+    var bucket = "vue-system";
+    var options = {
+        scope: bucket
+    }
+    var putPolicy = new qiniu.rs.PutPolicy(options);
+    var uploadToken = putPolicy.uploadToken(mac);
+
+    resObj.data.uploadToken = uploadToken;
+    res.send(resObj);
+})
+
+
 
 var server = app.listen(3001, function () {
     var host = server.address().address;
