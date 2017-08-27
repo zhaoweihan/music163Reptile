@@ -330,7 +330,77 @@ app.post('/shoppingCartGoodsList', (req, res) => {
 
 })
 
+/**
+ * 猜你喜欢
+ */
+app.post('/guessLike', (req, res) => {
+    var resObj = {
+        code: 200,
+        msg: "ok",
+        data: {
+            guessLikeBaseUrl:["http://yanxuan.nosdn.127.net/","?imageView&quality=95&thumbnail=210x210"],
+            guessLike: [{
+                name: "跳色牛皮防水工装男靴",
+                imgUrl: "d3affef4e9cf20002e241171085379ef.png",
+                price: 45900,
+                imgTag: "",
+                prdtTags: ""
 
+            }, {
+                name: "经典海魂衫（女童）",
+                imgUrl: "e3818b70274df103af254991d28b05f0.png",
+                price: 4900,
+                imgTag: "3色可选",
+                prdtTags: ""
+
+            }, {
+                name: "棉双层纱波点娃娃裙（婴童）",
+                imgUrl: "e5266a5dd11f8cf57a28cdd84321eeb8.png",
+                price: 9900,
+                imgTag: "",
+                prdtTags: ""
+
+            }, {
+                name: "格纹棉质衬衫（婴童）",
+                imgUrl: "fbbe08edbc745ca90fb7b535b614607a.png",
+                price: 13900,
+                imgTag: "",
+                prdtTags: ""
+
+            }, {
+                name: "女童短袖polo衫",
+                imgUrl: "36d7f8b70d45a3904e0be1ab0bc9bf3b.png",
+                price: 4900,
+                imgTag: "4色可选",
+                prdtTags: "N元任选"
+
+            }, {
+                name: "日本制造 花花公子香氛蜡烛",
+                imgUrl: "550e3ef5944660a1f299fea6748ca11e.png",
+                price: 12900,
+                imgTag: "日本制造",
+                prdtTags: "满赠"
+
+            }, {
+                name: "粒面牛皮防水工装男靴",
+                imgUrl: "c1a824d4edbd23e5d5d4816067f90a99.png",
+                price: 45900,
+                imgTag: "2色可选",
+                prdtTags: ""
+
+            }, {
+                name: "太平猴魁礼盒 100克",
+                imgUrl: "7010c51dfbd89590ed2799c509c159a3.png",
+                price: 32800,
+                imgTag: "",
+                prdtTags: ""
+
+            }]
+        }
+    }
+    res.send(resObj)
+
+})
 
 //获取七牛云上传凭证
 var accessKey = 'Rbfxo7gz15zUtWCUq5pBvdSfws_oLEpR2As2gbEm';
