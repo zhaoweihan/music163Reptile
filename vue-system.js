@@ -395,6 +395,20 @@ app.post('/guessLike', (req, res) => {
                 imgTag: "",
                 prdtTags: ""
 
+            }, {
+                name: "黑锋椴树蜜 418克",
+                imgUrl: "3508a1332eb00b6707b8b58d52293963.png",
+                price: 2800,
+                imgTag: "",
+                prdtTags: ""
+
+            }, {
+                name: "纯牛奶 12盒*2提",
+                imgUrl: "d7b552bcbbcd5b99d46ba98516b219bd.png",
+                price: 7990,
+                imgTag: "",
+                prdtTags: "限时福利价"
+
             }]
         }
     }
