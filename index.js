@@ -4,6 +4,7 @@ const app = require('express')();
 const request = require('superagent');
 // 加载 cheerio 模块
 const cheerio = require('cheerio');
+
 function checkId(id) {
     return /^[0-9]+$/.test(id);
 }
@@ -135,13 +136,7 @@ app.get('/playlist/:playlistId', function (req, res) {
         data: {}
     };
 
-    /**
-     * 使用 superagent 请求
-     * 在这里我们为什么要请求 http://music.163.com/playlist?id=${playlistId}
-     * 简友们应该还记得 网易云音乐首页的 iframe
-     * 应该还记得去打开 调试面板的 Sources 选项卡
-     * 那么就可以看到在歌单页面 iframe 到底加载了什么 url
-     */
+
     request.get(`http://music.163.com/playlist?id=${playlistId}`)
         .end(function (err, _response) {
 
@@ -159,11 +154,11 @@ app.get('/playlist/:playlistId', function (req, res) {
                 // 获得歌单 dom
                 var dom = $('#m-playlist');
                 // 歌单标题
-                playlist.title = dom.find('.tit').text();
+                playlist.title = dom.find('.tit .f-ff2').text();
                 //歌单封面
                 playlist.cover = dom.find(".cover img").attr("data-src");
                 // 歌单拥有者
-                playlist.owner = dom.find('.user').find('.name').text();
+                playlist.owner = dom.find('.user').find('.name a').text();
                 //歌单拥有者头像
                 playlist.ownerPic = dom.find('.user img').attr('src');
                 // 创建时间
@@ -177,7 +172,7 @@ app.get('/playlist/:playlistId', function (req, res) {
                 // 标签
                 playlist.tags = [];
                 dom.find('.tags').eq(0).find('.u-tag').each(function (index, element) {
-                    playlist.tags.push($(element).text());
+                    playlist.tags.push($(element).children().text());
                 });
                 // 歌单描述
                 playlist.desc = dom.find('#album-desc-more').html();
@@ -219,9 +214,20 @@ app.get('/song_list/:playlistId', function (req, res) {
                     decodeEntities: false
                 });
                 // 获得歌单 dom
-                var dom = $('#m-playlist');
-
-                resObj.data = JSON.parse(dom.find('#song-list-pre-cache').find('textarea').html());
+                var songlist = [];
+                var trList = $('#song-list-pre-cache').find(".f-hide li");
+                trList.each(function (index,trDom) {
+                    var $trDom = $(trDom);
+                    songlist.push({
+                        id:  $trDom.children().attr("href").split("id=")[1],
+                        name: $trDom.children().text(),
+                        artists: "",
+                        album: "",
+                        times:""
+                    })
+                })
+               
+                resObj.data = songlist;
 
             } else {
                 resObj.code = 404;
